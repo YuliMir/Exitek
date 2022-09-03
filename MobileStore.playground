@@ -1,0 +1,46 @@
+protocol MobileStorage {
+    func getAll()->Set<Mobile>
+    func findByImei(_imei:String)->Mobile?
+    func save(_mobile: Mobile)throws->Mobile
+    func delete(_product: Mobile)throws
+    func exists(_product: Mobile)->Bool
+}
+
+struct Mobile: Hashable {
+    let imei: String
+    let model: String
+}
+
+class MobileStore: MobileStorage {
+    
+    var mobilePhones: [Mobile] = []
+    var mobilePhone = Set<Mobile>()
+    
+    func getAll()->Set<Mobile> {
+        for phone in mobilePhones {
+            mobilePhone.insert(phone)
+        }
+        return mobilePhone
+    }
+    
+    func findByImei(_imei:String)->Mobile? {
+        return mobilePhone.first {$0.imei == _imei}
+    }
+    
+    func save(_mobile: Mobile)throws->Mobile {
+        do {
+            let updated = mobilePhone.update(with: _mobile)
+            return updated ?? Mobile(imei: "", model: "")
+        }
+    }
+    
+    func delete(_product: Mobile)throws {
+        do {
+            mobilePhone.remove(_product)
+        }
+    }
+    
+    func exists(_product: Mobile)->Bool {
+        return mobilePhone.contains(_product)
+    }
+}
