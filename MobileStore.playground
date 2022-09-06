@@ -1,3 +1,5 @@
+import UIKit
+
 protocol MobileStorage {
     func getAll()->Set<Mobile>
     func findByImei(_imei:String)->Mobile?
@@ -13,11 +15,14 @@ struct Mobile: Hashable {
 
 class MobileStore: MobileStorage {
     
-    var mobilePhones: [Mobile] = []
+    enum MobileStoreError: Error {
+        case noPhone
+    }
+    
     var mobilePhone = Set<Mobile>()
     
     func getAll()->Set<Mobile> {
-        for phone in mobilePhones {
+        for phone in mobilePhone {
             mobilePhone.insert(phone)
         }
         return mobilePhone
@@ -28,15 +33,20 @@ class MobileStore: MobileStorage {
     }
     
     func save(_mobile: Mobile)throws->Mobile {
-        do {
-            let updated = mobilePhone.update(with: _mobile)
-            return updated ?? Mobile(imei: "", model: "")
+        if let finded = findByImei(_imei: _mobile.imei) {
+            return finded
+        } else {
+            mobilePhone.insert(_mobile)
+            return _mobile
         }
+        
     }
     
     func delete(_product: Mobile)throws {
-        do {
+        if exists(_product: _product) {
             mobilePhone.remove(_product)
+        } else {
+            throw MobileStoreError.noPhone
         }
     }
     
